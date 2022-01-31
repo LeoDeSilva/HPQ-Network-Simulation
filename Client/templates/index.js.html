@@ -1,0 +1,79 @@
+<script>
+greeting = `
+ .................................................................................................
+ :'##::: ##:'########:'########:'##:::::'##::'#######::'########::'##:::'##:'########:'########:::
+ : ###:: ##: ##.....::... ##..:: ##:'##: ##:'##.... ##: ##.... ##: ##::'##:: ##.....:: ##.... ##::
+ : ####: ##: ##:::::::::: ##:::: ##: ##: ##: ##:::: ##: ##:::: ##: ##:'##::: ##::::::: ##:::: ##::
+ : ## ## ##: ######:::::: ##:::: ##: ##: ##: ##:::: ##: ########:: #####:::: ######::: ########:::
+ : ##. ####: ##...::::::: ##:::: ##: ##: ##: ##:::: ##: ##.. ##::: ##. ##::: ##...:::: ##.. ##::::
+ : ##:. ###: ##:::::::::: ##:::: ##: ##: ##: ##:::: ##: ##::. ##:: ##:. ##:: ##::::::: ##::. ##:::
+ : ##::. ##: ########:::: ##::::. ###. ###::. #######:: ##:::. ##: ##::. ##: ########: ##:::. ##::
+ ::..::..::........:::::..::::::...::...::::.......:::..:::::..::..::::..::........::..:::::::::::
+`
+
+$('body').terminal({
+    admin: function() { location.href = "/admin" },
+
+    echo: function(what) { this.echo(what) },
+    clear: function() { this.clear() },
+    time: function() { this.echo('{% now "Y m d H:i:s" %}') },
+
+    register: function(username, password) {
+        $.ajax({
+            type:"POST",
+            url:"{% url 'register' %}",
+            data: {
+                "username":username, 
+                "password":password, 
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+            },
+        }) 
+    },
+
+    login: function(username, password) {
+        $.ajax({
+            type:'POST',
+            url:'{% url "login" %}',
+            data: {
+                'username':username,
+                'password':password,
+                'csrfmiddlewaretoken':'{{ csrf_token }}'
+            }
+        })
+    },
+
+    GET:function(server) {
+        $.ajax({
+            type:"POST",
+            url:"{% url 'get' %}",
+            data: {
+                server: server,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            }
+        })
+    },
+
+    monitor:function(){
+        $.ajax({
+            type:"GET",
+            url:"{% url 'monitor' %}",
+            data:{},
+            invokedata:{
+                "terminal":this
+            },
+            success: function(response) {
+                for (let i = 0; i < response['request'].length; i++) {
+                    request = response['request'][i]
+                    this.invokedata.terminal.echo(
+                        request.method + " " + request.server
+                    )
+                }
+            }
+        })
+        
+        
+    },
+}, {
+    greetings: greeting
+});
+</script>
