@@ -1,0 +1,62 @@
+<script>
+
+serverGreeting = `
+................................................................
+::'######::'########:'########::'##::::'##:'########:'########:::
+:'##... ##: ##.....:: ##.... ##: ##:::: ##: ##.....:: ##.... ##::
+: ##:::..:: ##::::::: ##:::: ##: ##:::: ##: ##::::::: ##:::: ##::
+:. ######:: ######::: ########:: ##:::: ##: ######::: ########:::
+::..... ##: ##...:::: ##.. ##:::. ##:: ##:: ##...:::: ##.. ##::::
+:'##::: ##: ##::::::: ##::. ##:::. ## ##::: ##::::::: ##::. ##:::
+:. ######:: ########: ##:::. ##:::. ###:::: ########: ##:::. ##::
+::......:::........::..:::::..:::::...:::::........::..:::::..:::
+`
+
+$('body').terminal({
+    admin: function() { location.href = "/admin" },
+    client: function() { location.href = "{% url 'client' %}" },
+
+    echo: function(what) { this.echo(what) },
+    clear: function() { this.clear() },
+    time: function() { this.echo('{% now "Y m d H:i:s" %}') },
+    whoami: function() { this.echo('server') },
+
+    monitor:function(){
+        $.ajax({
+            type:"GET",
+            url:"{% url 'monitor' %}",
+            data:{},
+            invokedata:{
+                "terminal":this
+            },
+            success: function(response) {
+                for (let i = 0; i < response['request'].length; i++) {
+                    request = response['request'][i];
+                    this.invokedata.terminal.echo(
+                        request.pk + " " + request.method + " " + request.server
+                    );
+                }
+            }
+        })
+    },
+
+    handle:function(pk){
+        $.ajax({
+            type:"POST",
+            url:"{% url 'handle' %}",
+            data:{
+                pk: pk,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            invokedata:{
+                "terminal":this
+            },
+            success: function(response) {
+                this.invokedata.terminal.echo(response["message"])
+            }
+        }) 
+    },
+}, {
+    greetings: serverGreeting
+});
+</script>

@@ -12,7 +12,7 @@ class Request(models.Model):
     server = models.CharField(max_length=100)
     header = models.CharField(max_length=10000, default="{}")
     body = models.CharField(max_length=10000, default="{}")
-    time = models.DateTimeField(blank=True, default=timezone.now)
+    time = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return "GET " + self.server + " HEADER:" + self.header + " BODY:" + self.body 
